@@ -1,12 +1,15 @@
 <img align="left" width="80" height="80" src="assets/icon.png">
 
-# Hachimi
+# Hachimi LTS
 
 English | [简体中文](README-zh_cn.md) | [繁體中文](README-zh_tw.md)
 
 [![Discord server](https://dcbadge.limes.pink/api/server/https://discord.gg/BVEt5FcxEn)](https://discord.gg/BVEt5FcxEn)
 
 Game enhancement and translation mod for UM:PD.
+
+> [!IMPORTANT]
+> This repository is dedicated to producing **Long Term Servicing (LTS)** builds. This project (**Hachimi LTS**) is based on the stable **v0.21.6** release of [Hachimi-Edge](https://github.com/kairusds/Hachimi-Edge), incorporating essential servicing tweaks to maintain reliability. It was established following breaking changes introduced in the upstream **v0.22.0** release to ensure a consistent and stable experience for users who prefer the proven architecture of the previous version.
 
 <img height="400" src="assets/screenshot.jpg">
 

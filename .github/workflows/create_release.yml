@@ -5,6 +5,9 @@ on: workflow_dispatch
 permissions:
   contents: write
 
+env:
+  HACHIMI_SKIP_DIRTY_CHECK: 1
+
 jobs:
   build-android:
     runs-on: ubuntu-latest
@@ -43,7 +46,7 @@ jobs:
           path: |
             build/*.so
             build/sha256.json
-          
+
   build-windows:
     runs-on: windows-latest
     if: "!contains(github.event.head_commit.message, '[ci skip]')"
@@ -155,17 +158,30 @@ jobs:
 
       - name: Create release notes
         run: |
-          if ! git rev-parse "$LATEST_TAG" >/dev/null 2>&1; then
-            git tag $LATEST_TAG
-          fi
+          # Check if any tags exist in the repository
+          TAG_COUNT=$(git tag --list | wc -l)
 
-          PREVIOUS_TAG=$(git describe --tags --abbrev=0 "${LATEST_TAG}^")
-          if [ -z "$PREVIOUS_TAG" ]; then
-            PREVIOUS_TAG=$(git rev-list --max-parents=0 HEAD)
-          fi
+          if [ "$TAG_COUNT" -eq 0 ]; then
+            # First release - no previous tags exist
+            echo "## What's Changed" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            echo "This is the first release of Hachimi-LTS." >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
 
-          echo "## What's Changed" > CHANGELOG.md
-          COMMIT_HASHES=$(git rev-list --no-merges ${PREVIOUS_TAG}..${LATEST_TAG})
+            # List all commits from the beginning
+            COMMIT_HASHES=$(git rev-list --no-merges HEAD)
+          else
+            # Find the previous tag
+            PREVIOUS_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+            if [ -z "$PREVIOUS_TAG" ]; then
+              # Fallback to initial commit if no tags found
+              PREVIOUS_TAG=$(git rev-list --max-parents=0 HEAD)
+            fi
+
+            echo "## What's Changed" > CHANGELOG.md
+            COMMIT_HASHES=$(git rev-list --no-merges ${PREVIOUS_TAG}..HEAD)
+          fi
 
           IFS=$'\n'
 
@@ -196,7 +212,6 @@ jobs:
           unset IFS
         env:
           GH_TOKEN: ${{ github.token }}
-          LATEST_TAG: ${{ env.RELEASE_VERSION }}
 
       - name: Upload binaries to a release
         uses: softprops/action-gh-release@v2

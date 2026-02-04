@@ -1,12 +1,16 @@
 <img align="left" width="80" height="80" src="assets/icon.png">
 
-# Hachimi
+# Hachimi LTS
 
 [English](README.md) | 简体中文 | [繁體中文](README-zh_tw.md)
 
 [![Discord 服务器](https://dcbadge.limes.pink/api/server/https://discord.gg/BVEt5FcxEn)](https://discord.gg/BVEt5FcxEn)
 
 某赛马拟人化游戏的游戏增强与翻译插件。
+
+> [!IMPORTANT]
+> 本仓库致力于生产 **长期服务 (LTS)** 版本。此项目 (**Hachimi LTS**) 基于 [Hachimi-Edge](https://github.com/kairusds/Hachimi-Edge) 的稳定版 **v0.21.6**，并包含了一些必要的维护调整。由于上游 **v0.22.0** 版本引入了重大变更，我们建立了此分支，旨在为偏好旧版成熟架构的用户提供更持续、稳定且可靠的体验。
+
 
 <img height="400" src="assets/screenshot.jpg">
 

@@ -55,7 +55,7 @@ VERSION="$(get_toml_value Cargo.toml package version)"
 GIT_COMMIT="$(git rev-parse --short HEAD)"
 VERSION_STR="v$VERSION-$GIT_COMMIT"
 VERSION_CODE="$(version_to_code "$VERSION")"
-if [[ -n "$(git status --porcelain)" ]]
+if [[ -z "$HACHIMI_SKIP_DIRTY_CHECK" ]] && [[ -n "$(git status --porcelain)" ]]
 then
     VERSION_STR="$VERSION_STR-dirty"
 fi

@@ -1,18 +1,33 @@
-use std::{os::raw::c_uint, ptr, sync::{atomic::{self, AtomicIsize}, Arc}};
+use std::{
+    os::raw::c_uint,
+    ptr,
+    sync::{
+        atomic::{self, AtomicIsize},
+        Arc,
+    },
+};
 
-use windows::{core::w, Win32::{
-    Foundation::{HWND, LPARAM, LRESULT, WPARAM},
-    System::Threading::GetCurrentThreadId,
-    UI::WindowsAndMessaging::{
-        CallNextHookEx, DefWindowProcW, FindWindowW, GetWindowLongPtrW, SetWindowsHookExW, UnhookWindowsHookEx,
-        GWLP_WNDPROC, HCBT_MINMAX, HHOOK, SW_RESTORE, WH_CBT, WM_CLOSE, WM_KEYDOWN, WM_SYSKEYDOWN, WNDPROC
-    }
-}};
+use windows::{
+    core::w,
+    Win32::{
+        Foundation::{HWND, LPARAM, LRESULT, WPARAM},
+        System::Threading::GetCurrentThreadId,
+        UI::WindowsAndMessaging::{
+            CallNextHookEx, DefWindowProcW, FindWindowW, GetWindowLongPtrW, SetWindowsHookExW,
+            UnhookWindowsHookEx, GWLP_WNDPROC, HCBT_MINMAX, HHOOK, SW_RESTORE, WH_CBT, WM_CLOSE,
+            WM_KEYDOWN, WM_SYSKEYDOWN, WNDPROC,
+        },
+    },
+};
 
-use crate::{core::{game::Region, Gui, Hachimi}, il2cpp::{hook::{umamusume::SceneManager, UnityEngine_CoreModule}, symbols::Thread}, windows::utils};
+use crate::{
+    core::{game::Region, Gui, Hachimi},
+    il2cpp::{hook::UnityEngine_CoreModule, symbols::Thread},
+    windows::utils,
+};
 use rust_i18n::t;
 
-use super::{gui_impl::input, discord};
+use super::{discord, gui_impl::input};
 
 static TARGET_HWND: AtomicIsize = AtomicIsize::new(0);
 pub fn get_target_hwnd() -> HWND {
@@ -42,7 +57,9 @@ extern "system" fn wnd_proc(hwnd: HWND, umsg: c_uint, wparam: WPARAM, lparam: LP
                 new_config.windows.menu_open_key = wparam.0 as u16;
                 let _ = hachimi.save_config(&new_config);
                 hachimi.config.store(Arc::new(new_config));
-                let key_label = crate::windows::utils::vk_to_display_label(Hachimi::instance().config.load().windows.menu_open_key);
+                let key_label = crate::windows::utils::vk_to_display_label(
+                    Hachimi::instance().config.load().windows.menu_open_key,
+                );
                 let msg = t!("notification.menu_open_key_set", key = key_label);
                 std::thread::spawn(move || {
                     if let Some(gui) = Gui::instance() {
@@ -58,23 +75,25 @@ extern "system" fn wnd_proc(hwnd: HWND, umsg: c_uint, wparam: WPARAM, lparam: LP
 
                 gui.toggle_menu();
                 return LRESULT(0);
-            }else if wparam.0 as u16 == Hachimi::instance().config.load().windows.hide_ingame_ui_hotkey_bind {
+            } else if wparam.0 as u16
+                == Hachimi::instance().config.load().windows.hide_ingame_ui_hotkey_bind
+            {
                 Thread::main_thread().schedule(Gui::toggle_game_ui);
             }
         },
         WM_CLOSE => {
             if let Some(hook) = Hachimi::instance().interceptor.unhook(wnd_proc as *const () as _) {
-                unsafe { WNDPROC_RECALL = hook.orig_addr; }
-                Thread::main_thread().schedule(|| {
-                    unsafe {
-                        let orig_fn = std::mem::transmute::<usize, WNDPROC>(WNDPROC_RECALL).unwrap();
-                        orig_fn(get_target_hwnd(), WM_CLOSE, WPARAM(0), LPARAM(0));
-                    }
+                unsafe {
+                    WNDPROC_RECALL = hook.orig_addr;
+                }
+                Thread::main_thread().schedule(|| unsafe {
+                    let orig_fn = std::mem::transmute::<usize, WNDPROC>(WNDPROC_RECALL).unwrap();
+                    orig_fn(get_target_hwnd(), WM_CLOSE, WPARAM(0), LPARAM(0));
                 });
             }
             return LRESULT(0);
         },
-        _ => ()
+        _ => (),
     }
 
     // Only capture input if gui needs it
@@ -104,10 +123,10 @@ extern "system" fn wnd_proc(hwnd: HWND, umsg: c_uint, wparam: WPARAM, lparam: LP
 
 static mut HCBTHOOK: HHOOK = HHOOK(ptr::null_mut());
 extern "system" fn cbt_proc(ncode: i32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
-    if ncode == HCBT_MINMAX as i32 &&
-        lparam.0 as i32 != SW_RESTORE.0 &&
-        Hachimi::instance().config.load().windows.block_minimize_in_full_screen &&
-        UnityEngine_CoreModule::Screen::get_fullScreen()
+    if ncode == HCBT_MINMAX as i32
+        && lparam.0 as i32 != SW_RESTORE.0
+        && Hachimi::instance().config.load().windows.block_minimize_in_full_screen
+        && UnityEngine_CoreModule::Screen::get_fullScreen()
     {
         return LRESULT(1);
     }
@@ -123,8 +142,7 @@ pub fn init() {
         let window_name = if game.region == Region::Japan && game.is_steam_release {
             // lmao
             w!("UmamusumePrettyDerby_Jpn")
-        }
-        else {
+        } else {
             // global technically has "Umamusume" as its title but this api
             // is case insensitive so it works. why am i surprised
             w!("umamusume")
@@ -140,7 +158,7 @@ pub fn init() {
         let wnd_proc_addr = GetWindowLongPtrW(hwnd, GWLP_WNDPROC);
         match hachimi.interceptor.hook(wnd_proc_addr as _, wnd_proc as *const () as _) {
             Ok(trampoline_addr) => WNDPROC_ORIG = trampoline_addr as _,
-            Err(e) => error!("Failed to hook WndProc: {}", e)
+            Err(e) => error!("Failed to hook WndProc: {}", e),
         }
 
         info!("Adding CBT hook");
@@ -155,8 +173,8 @@ pub fn init() {
 
         if hachimi.discord_rpc.load(atomic::Ordering::Relaxed) {
             if let Err(e) = discord::start_rpc() {
-                 error!("{}", e);
-             }
+                error!("{}", e);
+            }
         }
     }
 }

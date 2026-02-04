@@ -16,7 +16,7 @@ use crate::core::{gui::{PersistentMessageWindow, SimpleYesNoDialog}, http, Error
 
 use super::{main::DLL_HMODULE, utils};
 
-const REPO_PATH: &str = "kairusds/Hachimi-Edge";
+const REPO_PATH: &str = "THShafi170/Hachimi-LTS";
 const GITHUB_API: &str = "https://api.github.com/repos";
 const CODEBERG_API: &str = "https://codeberg.org/api/v1/repos";
 
