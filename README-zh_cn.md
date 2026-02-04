@@ -1,6 +1,6 @@
 <img align="left" width="80" height="80" src="assets/icon.png">
 
-# Hachimi
+# Hachimi LTS
 
 [English](README.md) | 简体中文 | [繁體中文](README-zh_tw.md)
 
@@ -8,9 +8,13 @@
 
 某赛马拟人化游戏的游戏增强与翻译插件。
 
-<img height="400" src="assets/screenshot.jpg">
+> [!IMPORTANT]
+> 本仓库致力于生产 **长期服务 (LTS)** 版本。此项目 (**Hachimi LTS**) 基于 [Hachimi-Edge](https://github.com/kairusds/Hachimi-Edge) 的稳定版 **v0.21.6**，并包含了一些必要的维护调整。由于上游 **v0.22.0** 版本引入了重大变更，我们建立了此分支，旨在为偏好旧版成熟架构的用户提供更持续、稳定且可靠的体验。
+
+<img height="400" src="assets/screenshot.png">
 
 # ⚠️ 请不要分享这个仓库与 Hachimi 网站的相关链接
+
 我们非常理解您希望帮助别人安装 Hachimi 来与其获得更好的游戏体验。但是，此项目本质上违反了游戏的服务条款，如果被游戏的开发商得知，他们肯定会希望这个项目灰飞烟灭。
 
 您可以私下与别人分享，这完全没有问题，但是我们请求您不要在公开的网站上分享此项目的相关链接，也不要分享任何相关工具的链接。
@@ -18,9 +22,11 @@
 如果进行分享宣传，这可能会破坏很多 Hachimi 用户的体验，请三思而后行。
 
 ### 如果您执意要分享
+
 我们无法改变您的想法，但我们建议您在提及游戏本体时，使用 “UM:PD” 或 “某赛马拟人化游戏” 等隐语去代替游戏名字，这样能避免被搜索引擎剖析到。
 
 # 功能特性
+
 - **高质量翻译：** 内置先进的翻译功能系统，支持复数形式、序数词等自然语言特性，避免界面异常。支持自动翻译绝大多数游戏组件，无需手动修改资源文件！
 
     已支持组件：
@@ -41,9 +47,11 @@
 - **跨平台支持：** 专为多平台设计，支持 Windows 和 Android 系统。
 
 # 安装指南
+
 请参阅[入门指南](https://hachimi.noccu.art/zh-cn/docs/hachimi/getting-started.html)。
 
 # 特别鸣谢
+
 以下项目为 Hachimi 的开发奠定了重要基础，如果没有它们，Hachimi 不会有今天如此成就：
 
 - [Trainers' Legend G](https://github.com/MinamiChiwa/Trainers-Legend-G)
@@ -54,4 +62,5 @@
 - [frida-il2cpp-bridge](https://github.com/vfsfitvnm/frida-il2cpp-bridge)
 
 # 许可证
+
 [GNU GPLv3](LICENSE)

@@ -1,6 +1,6 @@
 <img align="left" width="80" height="80" src="assets/icon.png">
 
-# Hachimi
+# Hachimi LTS
 
 English | [简体中文](README-zh_cn.md) | [繁體中文](README-zh_tw.md)
 
@@ -8,9 +8,13 @@ English | [简体中文](README-zh_cn.md) | [繁體中文](README-zh_tw.md)
 
 Game enhancement and translation mod for UM:PD.
 
-<img height="400" src="assets/screenshot.jpg">
+> [!IMPORTANT]
+> This repository is dedicated to producing **Long Term Servicing (LTS)** builds. This project (**Hachimi LTS**) is based on the stable **v0.21.6** release of [Hachimi-Edge](https://github.com/kairusds/Hachimi-Edge), incorporating essential servicing tweaks to maintain reliability. It was established following breaking changes introduced in the upstream **v0.22.0** release to ensure a consistent and stable experience for users who prefer the proven architecture of the previous version.
+
+<img height="400" src="assets/screenshot.png">
 
 # ⚠️ Please don't link to this repo or Hachimi's website
+
 We understand that you want to help people install Hachimi and have a better experience playing the game. However, this project is inherently against the game's TOS and The Game Developer most definitely wants it gone if they were ever to learn about it.
 
 While sharing in your self-managed chat services and through private messaging is fine, we humbly ask that you refrain from sharing links to this project on public facing sites, or to any of the tools involved.
@@ -18,9 +22,11 @@ While sharing in your self-managed chat services and through private messaging i
 Or share them and ruin it for the dozens of Hachimi users. It's up to you.
 
 ### If you're going to share it anyways
+
 Do what you must, but we would respectfully request that you try to label the game as "UM:PD" or "The Honse Game" instead of the actual name of the game, to avoid search engine parsing.
 
 # Features
+
 - **High quality translations:** Hachimi comes with advanced translation features that help translations feel more natural (plural forms, ordinal numbers, etc.) and prevent introducing jank to the UI. It also supports translating most in-game components; no manual assets patching needed!
 
     Supported components:
@@ -41,9 +47,11 @@ Do what you must, but we would respectfully request that you try to label the ga
 - **Cross-platform:** Designed from the ground up to be portable, with Windows and Android support.
 
 # Installation
+
 Please see the [Getting started](https://hachimi.noccu.art/docs/hachimi/getting-started.html) page.
 
 # Special thanks
+
 These projects have been the basis for Hachimi's development; without them, Hachimi would never have existed in its current form:
 
 - [Trainers' Legend G](https://github.com/MinamiChiwa/Trainers-Legend-G)
@@ -54,4 +62,5 @@ These projects have been the basis for Hachimi's development; without them, Hach
 - [frida-il2cpp-bridge](https://github.com/vfsfitvnm/frida-il2cpp-bridge)
 
 # License
+
 [GNU GPLv3](LICENSE)

@@ -33,13 +33,16 @@ fn setup_version_env() {
             println!("cargo:warning=Failed to retrieve git commit hash");
         }
 
-        if let Some(output) = execute_command(Command::new("git").args(["status", "--porcelain"])) {
-            if !output.stdout.is_empty() {
-                version_str.push_str("-dirty");
+        let skip_dirty_check = std::env::var("HACHIMI_SKIP_DIRTY_CHECK").map(|v| v == "1" || v == "true").unwrap_or(false);
+        if !skip_dirty_check {
+            if let Some(output) = execute_command(Command::new("git").args(["status", "--porcelain"])) {
+                if !output.stdout.is_empty() {
+                    version_str.push_str("-dirty");
+                }
             }
-        }
-        else {
-            println!("cargo:warning=Failed to retrieve git repo status");
+            else {
+                println!("cargo:warning=Failed to retrieve git repo status");
+            }
         }
 
         if let Some(output) = execute_command(Command::new("git").args(["rev-parse", "--git-dir"])) {

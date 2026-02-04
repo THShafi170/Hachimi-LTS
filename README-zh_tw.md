@@ -1,6 +1,6 @@
 <img align="left" width="80" height="80" src="assets/icon.png">
 
-# Hachimi
+# Hachimi LTS
 
 [English](README.md) | [简体中文](README-zh_cn.md) | 繁體中文
 
@@ -8,7 +8,11 @@
 
 馬姑娘:媠達比的遊戲強化與翻譯模組
 
-<img height="400" src="assets/screenshot.jpg">
+> [!IMPORTANT]
+> 本倉庫致力於生產 **長期服務 (LTS)** 版本。此項目 (**Hachimi LTS**) 基於 [Hachimi-Edge](https://github.com/kairusds/Hachimi-Edge) 的穩定版 **v0.21.6**，並包含了一些必要的維護調整。由於上遊 **v0.22.0** 版本引入了重大變更，我們建立了此分支，旨在為偏好舊版成熟架構的使用者提供更持續、穩定且可靠的體驗。
+
+
+<img height="400" src="assets/screenshot.png">
 
 # 功能特色
 - **高品質翻譯支援：** Hachimi 搭載了進階的翻譯處理功能，讓翻譯結果更自然流暢（支援複數型、序數詞等），並避免破壞遊戲介面。它也支援翻譯絕大多數的遊戲內容，無需手動修改資源檔！
