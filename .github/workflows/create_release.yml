@@ -117,7 +117,22 @@ jobs:
       - name: Get checksums for Windows binaries
         shell: bash
         run: |
-          curl -L "https://github.com/BLAKE3-team/BLAKE3/releases/latest/download/b3sum_windows_x64_bin.exe" -o b3sum.exe
+          # Get the latest b3sum download URL from GitHub API
+          DOWNLOAD_URL=$(curl -sL https://api.github.com/repos/BLAKE3-team/BLAKE3/releases/latest | \
+            grep "browser_download_url.*b3sum_windows_x64_bin.exe" | \
+            cut -d '"' -f 4)
+
+          # Download b3sum
+          curl -L "$DOWNLOAD_URL" -o b3sum.exe
+
+          # Verify it's actually an executable, not an HTML error page
+          if file b3sum.exe | grep -q "HTML"; then
+            echo "Error: Downloaded file is HTML, not an executable"
+            exit 1
+          fi
+
+          # Make it executable and calculate hashes
+          chmod +x b3sum.exe
           DLL_HASH=($(./b3sum.exe build/hachimi.dll | tr -d '\r'))
           EXE_HASH=($(./b3sum.exe build/hachimi_installer.exe | tr -d '\r'))
           cat <<EOF > build/blake3.json
