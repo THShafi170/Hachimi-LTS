@@ -106,6 +106,7 @@ config_editor:
     nghĩa là bạn sẽ KHÔNG thể truy cập trình chỉnh sửa cài đặt nữa.
     Nếu như bạn không có ý định này, hãy đóng hộp thoại và TẮT tùy chọn.
   debug_mode: "Chế độ gỡ lỗi"
+  enable_file_logging: "Bật ghi nhật ký vào tệp"
   translator_mode: "Chế độ dịch"
   skip_first_time_setup: "Bỏ qua thiết lập\nlần đầu"
   disable_auto_update_check: "Tắt kiểm tra cập\nnhật tự động"

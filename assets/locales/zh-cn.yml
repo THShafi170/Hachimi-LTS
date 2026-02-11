@@ -74,9 +74,9 @@ first_time_setup:
   welcome_heading: "欢迎"
   welcome_content: >-
     Hachimi LTS 已安装成功！本向导将引导您完成初始设置。
-    
+
     如果您不需要使用翻译功能，可以直接关闭此窗口跳过设置。
-    
+
     免责声明：Hachimi LTS 是一个社区驱动的项目。所有翻译均由不同的社区贡献者制作。
     该项目并非由 Cygames, Inc. 开发或认可，且违反了游戏的服务条款。继续使用即表示
     您接受自行承担使用风险。
@@ -87,7 +87,7 @@ first_time_setup:
   complete_heading: "全部完成！"
   complete_content: >-
     点击「完成」以保存配置。
-    
+
     如果您选择了翻译仓库，系统将执行更新检查，
     并提示您下载新的翻译数据。
 
@@ -117,6 +117,7 @@ config_editor:
     您将无法再访问配置编辑器。
     如非本意，请关闭此窗口并禁用此选项。
   debug_mode: "调试模式"
+  enable_file_logging: "启用文件日志记录"
   translator_mode: "翻译者模式"
   skip_first_time_setup: "跳过初始化设置"
   disable_auto_update_check: "禁用自动更新检查"
@@ -187,7 +188,7 @@ steam_overlay_conflict_dialog:
     如果您无法进行内购，请按「是」以临时禁用 Hachimi LTS GUI 并关闭游戏。
     在下次启动游戏时，Hachimi LTS GUI 将被禁用，此时您可以正常进行内购操作。
     购买完成后，请重启游戏以重新启用 Hachimi LTS GUI。
-    
+
 key_names:
   left: "左方向键"
   right: "右方向键"
