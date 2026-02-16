@@ -84,12 +84,18 @@ pub fn download_file_parallel(
     let accepts_ranges = res.header("Accept-Ranges").map_or(false, |v| v == "bytes");
 
     let mut actual_length = 0u64;
-    let use_parallel = if let Some(length) = content_length {
+    let mut use_parallel = false;
+
+    if let Some(length) = content_length {
         actual_length = length;
-        accepts_ranges && length > min_chunk_size
-    } else {
-        false
-    };
+        if accepts_ranges && length > min_chunk_size {
+            if let Ok(test_res) = agent.get(url).set("Range", "bytes=0-0").call() {
+                if test_res.status() == 206 {
+                    use_parallel = true;
+                }
+            }
+        }
+    }
 
     if use_parallel {
         let downloaded_file = fs::File::create(file_path)?;
@@ -132,22 +138,48 @@ pub fn download_file_parallel(
                         if stop_signal_clone.load(atomic::Ordering::Relaxed) {
                             break;
                         }
+                        let expected_bytes = end - start + 1;
                         let range_header = format!("bytes={}-{}", start, end);
                         let result = (|| -> Result<(), Error> {
                             let res =
                                 agent_clone.get(&url_clone).set("Range", &range_header).call()?;
+
+                            if res.status() != 206 {
+                                return Err(Error::RuntimeError(format!(
+                                    "Parallel chunk failed: Expected 206 Partial Content, got {}",
+                                    res.status()
+                                )));
+                            }
+
                             let mut reader = res.into_reader();
                             file.seek(SeekFrom::Start(start))?;
+
+                            let mut remaining = expected_bytes;
+
                             loop {
-                                let bytes_read = reader.read(&mut buffer)?;
+                                let to_read = (buffer.len() as u64).min(remaining) as usize;
+                                let bytes_read = reader.read(&mut buffer[..to_read])?;
                                 if bytes_read == 0 {
                                     break;
                                 }
                                 file.write_all(&buffer[..bytes_read])?;
                                 progress_callback_clone(bytes_read);
+
+                                remaining -= bytes_read as u64;
+                                if remaining == 0 {
+                                    break;
+                                }
+
                                 if stop_signal_clone.load(atomic::Ordering::Relaxed) {
                                     return Err(Error::RuntimeError("Download cancelled".into()));
                                 }
+                            }
+
+                            if remaining > 0 {
+                                return Err(Error::RuntimeError(format!(
+                                    "Parallel chunk truncated. Missing {} bytes",
+                                    remaining
+                                )));
                             }
                             Ok(())
                         })();
@@ -183,13 +215,27 @@ pub fn download_file_parallel(
     } else {
         debug!("Using single-threaded download for: {}", url);
         let res = agent.get(url).call()?;
+
+        let fallback_length = res.header("Content-Length").and_then(|s| s.parse::<u64>().ok());
+
         let mut file = fs::File::create(file_path)?;
         let mut buffer = vec![0u8; chunk_size];
+        let mut total_downloaded = 0u64;
 
         download_file_buffered(res, &mut file, &mut buffer, |bytes_slice| {
+            total_downloaded += bytes_slice.len() as u64;
             progress_callback(bytes_slice.len());
         })?;
         file.sync_data()?;
+
+        if let Some(expected) = fallback_length {
+            if total_downloaded != expected {
+                return Err(Error::RuntimeError(format!(
+                    "Download incomplete: expected {} bytes, got {} bytes",
+                    expected, total_downloaded
+                )));
+            }
+        }
     }
     Ok(())
 }
@@ -210,11 +256,11 @@ pub fn download_file_buffered(
         add_bytes(&buffer[prev_buffer_pos..buffer_pos]);
 
         if buffer_pos == buffer.len() {
-            buffer_pos = 0;
             let written = file.write(&buffer)?;
             if written != buffer.len() {
                 return Err(Error::OutOfDiskSpace);
             }
+            buffer_pos = 0;
         }
 
         if read_bytes == 0 {

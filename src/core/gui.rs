@@ -601,10 +601,10 @@ impl Gui {
                                     Some(t!("notification.localized_data_reloaded"));
                             }
                             if ui.button(t!("menu.check_for_updates")).clicked() {
-                                hachimi.tl_updater.clone().check_for_updates(false);
+                                hachimi.tl_updater.clone().check_for_updates(false, false);
                             }
                             if ui.button(t!("menu.check_for_updates_pedantic")).clicked() {
-                                hachimi.tl_updater.clone().check_for_updates(true);
+                                hachimi.tl_updater.clone().check_for_updates(true, false);
                             }
                             if hachimi.config.load().translator_mode {
                                 if ui.button(t!("menu.dump_localize_dict")).clicked() {
@@ -1204,16 +1204,20 @@ fn async_request_ui_content<T: Send + Sync + 'static>(
 pub struct SimpleYesNoDialog {
     title: String,
     content: String,
-    callback: fn(bool),
+    callback: Option<Box<dyn FnOnce(bool) + Send + Sync>>,
     id: egui::Id,
 }
 
 impl SimpleYesNoDialog {
-    pub fn new(title: &str, content: &str, callback: fn(bool)) -> SimpleYesNoDialog {
+    pub fn new(
+        title: &str,
+        content: &str,
+        callback: impl FnOnce(bool) + Send + Sync + 'static,
+    ) -> SimpleYesNoDialog {
         SimpleYesNoDialog {
             title: title.to_owned(),
             content: content.to_owned(),
-            callback,
+            callback: Some(Box::new(callback)),
             id: random_id(),
         }
     }
@@ -1246,7 +1250,9 @@ impl Window for SimpleYesNoDialog {
         if open && open2 {
             true
         } else {
-            (self.callback)(result);
+            if let Some(cb) = self.callback.take() {
+                cb(result);
+            }
             false
         }
     }
@@ -1255,16 +1261,20 @@ impl Window for SimpleYesNoDialog {
 pub struct SimpleOkDialog {
     title: String,
     content: String,
-    callback: fn(),
+    callback: Option<Box<dyn FnOnce() + Send + Sync>>,
     id: egui::Id,
 }
 
 impl SimpleOkDialog {
-    pub fn new(title: &str, content: &str, callback: fn()) -> SimpleOkDialog {
+    pub fn new(
+        title: &str,
+        content: &str,
+        callback: impl FnOnce() + Send + Sync + 'static,
+    ) -> SimpleOkDialog {
         SimpleOkDialog {
             title: title.to_owned(),
             content: content.to_owned(),
-            callback,
+            callback: Some(Box::new(callback)),
             id: random_id(),
         }
     }
@@ -1292,7 +1302,9 @@ impl Window for SimpleOkDialog {
         if open && open2 {
             true
         } else {
-            (self.callback)();
+            if let Some(cb) = self.callback.take() {
+                cb();
+            }
             false
         }
     }
@@ -1437,6 +1449,36 @@ impl ConfigEditor {
                 ui.label(t!("config_editor.disable_auto_update_check"));
                 ui.checkbox(&mut config.disable_auto_update_check, "");
                 ui.end_row();
+
+                ui.label(t!("config_editor.bg_update_mode"));
+                Gui::run_combo(
+                    ui,
+                    "bg_update_mode",
+                    &mut config.bg_update_mode,
+                    &[
+                        (crate::core::hachimi::BgUpdateMode::Disabled, &t!("disabled")),
+                        (
+                            crate::core::hachimi::BgUpdateMode::Periodic,
+                            &t!("config_editor.bg_update_periodic"),
+                        ),
+                        (
+                            crate::core::hachimi::BgUpdateMode::Silent,
+                            &t!("config_editor.bg_update_silent"),
+                        ),
+                    ],
+                );
+                ui.end_row();
+
+                if config.bg_update_mode != crate::core::hachimi::BgUpdateMode::Disabled {
+                    ui.label(t!("config_editor.bg_update_interval"));
+                    let mut minutes = (config.bg_update_interval_sec / 60) as i32;
+                    ui.horizontal(|ui| {
+                        ui.add(egui::DragValue::new(&mut minutes).speed(1.0).range(1..=10080));
+                        ui.label(t!("minutes"));
+                    });
+                    config.bg_update_interval_sec = (minutes as u64) * 60;
+                    ui.end_row();
+                }
 
                 ui.label(t!("config_editor.disable_translations"));
                 ui.checkbox(&mut config.disable_translations, "");
@@ -1993,7 +2035,7 @@ impl Window for FirstTimeSetupWindow {
             save_and_reload_config(config);
 
             if !page_open {
-                hachimi.tl_updater.clone().check_for_updates(false);
+                hachimi.tl_updater.clone().check_for_updates(false, false);
             }
         }
 
